@@ -6,12 +6,25 @@ using UnityOSC;
 public class OSCMaster : MonoBehaviour {
 
     OSCServer server;
-    public int port = 6000;
+    OSCClient client;
 
+    static OSCMaster instance;
+
+    public int port = 6000;
     OSCControllable[] controllables;
+
+    public string defaultRemoteHost = "127.0.0.1";
+    public int defaultRemotePort = 6001;
+
     
-	// Use this for initialization
+	void Awake()
+    {
+        client = new OSCClient(System.Net.IPAddress.Loopback, 7000, false);
+    }
+
 	void Start () {
+        instance = this;
+
         server = new OSCServer(port);
         server.PacketReceivedEvent += packetReceived;
         server.Connect();
@@ -57,5 +70,23 @@ public class OSCMaster : MonoBehaviour {
     void OnDestroy()
     {
         server.Close();
+    }
+
+    public static void sendMessage(OSCMessage m, string host = "", int port = 0)
+    {
+        if (host == "") host = instance.defaultRemoteHost;
+        if (port == 0) port = instance.defaultRemotePort;
+        instance.client.SendTo(m,host,port);
+    }
+
+    public static void sendMessage(string address, object[] args, string host = "", int port = 0)
+    {
+        OSCMessage m = new OSCMessage(address);
+        for (int i = 0; i < args.Length; i++)
+        {
+            m.Append(args[i]);
+        }
+
+        sendMessage(m, host, port);
     }
 }

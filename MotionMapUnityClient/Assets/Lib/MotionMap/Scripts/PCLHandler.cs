@@ -26,6 +26,12 @@ public class Cluster
 public class PCLHandler : MonoBehaviour
 {
 
+    public delegate void ClusterAddedDelegate(Cluster c);
+    public event ClusterAddedDelegate clusterAddedHandler;
+    public delegate void ClusterRemovedDelegate(Cluster c);
+    public event ClusterRemovedDelegate clusterRemovedHandler;
+
+
     KinectSensor sensor;
     DepthFrameReader depthReader;
     ColorFrameReader colorReader;
@@ -149,6 +155,7 @@ public class PCLHandler : MonoBehaviour
             colorMode = !colorMode;
             feedbackImage.texture = colorMode ? colorTex : depthTex;
         }
+        
     }
 
     void OnEnable()
@@ -421,7 +428,7 @@ public class PCLHandler : MonoBehaviour
             Vector3[] points = new Vector3[numRPoints];
             Vector3 mainOrientation = new Vector3();
             Vector3 absOrientation = new Vector3();
-            System.Random rand = new System.Random();
+            //System.Random rand = new System.Random();
             for (int i=0;i< c.numPoints; i++)
             {
                 //int index = rand.Next(0, c.numPoints);
@@ -570,22 +577,27 @@ public class PCLHandler : MonoBehaviour
             calib3DPoints[i] = getSpacePointForTarget(targets[i]);
         }
 
+        if (float.IsInfinity(calib3DPoints[0].x)) return;
+
+
         transform.parent.rotation = Quaternion.identity;
         transform.localPosition = -calib3DPoints[0];
-        Vector3 relX = calib3DPoints[1] - calib3DPoints[0];
-        Debug.DrawLine(Vector3.zero, relX);
 
-        float mag = relX.magnitude;
-        Vector3 side1 = relX;
-        Vector3 side2 = Vector3.forward * mag;
-        Vector3 norm = Vector3.Cross(side1, side2);
-        //transform.parent.RotateAround(norm, angle);
-        /*
-        float xzAngle = Mathf.Atan2(relX.z, relX.x);
-        Debug.DrawLine(relX, new Vector3(relX.x + Mathf.Cos(xzAngle), relX.z + Mathf.Sin(xzAngle)));
-        transform.parent.Rotate(Vector3.down, xzAngle*180/Mathf.PI -90 );
-        Debug.Log(xzAngle*180/Math.PI);
-        */
+        Vector3 ba = calib3DPoints[1] - calib3DPoints[0];
+        Vector3 ca =  calib3DPoints[2] - calib3DPoints[1];
+        Vector3 normXZ = Vector3.Cross(ca, ba);
+        normXZ.Normalize();
+
+        Vector3 calibAxisNorm = Vector3.Cross(normXZ, Vector3.up);
+        float angle = Vector3.Angle(normXZ, Vector3.up);
+        transform.parent.Rotate(calibAxisNorm, angle);
+
+        Vector3 xRel = transform.TransformPoint(calib3DPoints[1]);
+        xRel.Normalize();
+        float yAngle = Vector3.Angle(xRel, Vector3.right);
+        Vector3 euler = transform.parent.localRotation.eulerAngles;
+        transform.parent.localRotation = Quaternion.Euler(euler.x, euler.y + yAngle, euler.z);
+
     }
 
     //UI
