@@ -75,7 +75,7 @@ public class MotionMapZone : MonoBehaviour {
         if (!selected)
         { 
             selectionProgression = Mathf.Clamp01(value);
-            OSCMessage m = new OSCMessage("zone/" + id + "/selectionProgress", new object[] { selectionProgression });
+            OSCMessage m = new OSCMessage("zone/" + id + "/selectionProgress", selectionProgression);
             OSCMaster.sendMessage(m);
         }
     }

@@ -195,7 +195,7 @@ public class MotionMap : MonoBehaviour {
         }
 
 
-        OSCMessage m = new OSCMessage("/lastSelectedZone", new object[] { selectedZone.id });
+        OSCMessage m = new OSCMessage("/lastSelectedZone", selectedZone.id);
         OSCMaster.sendMessage(m);
     }
 
