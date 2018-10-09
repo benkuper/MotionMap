@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using DG.Tweening;
 
 public class MotionMap : MonoBehaviour {
 
@@ -9,8 +10,11 @@ public class MotionMap : MonoBehaviour {
     [Header("Cursor")]
     public GameObject cursorPrefab;
     public bool useDifferentColorsForIds;
+    public float cursorSmoothing;
 
     List<MotionMapCursor> cursors;
+    List<Cluster> clustersToAdd;
+    List<MotionMapCursor> clustersToRemove;
     
     [Header("Zone Selection")]
     public float selectionTime = 2;
@@ -20,36 +24,59 @@ public class MotionMap : MonoBehaviour {
     bool demoMode;
 
     int sceneLayer;
+    int plateauLayer;
 
     MotionMapZone[] zones;
     MotionMapZone selectedZone;
 
-	void Start () {
-        sceneLayer = LayerMask.NameToLayer("scene");
+	void Awake () {
+        sceneLayer = LayerMask.GetMask(new string[] { "scene" });
+        plateauLayer = LayerMask.GetMask(new string[] { "plateau" });
 
         zones = FindObjectsOfType<MotionMapZone>();
         cursors = new List<MotionMapCursor>();
 
-        handler.clusterAddedHandler += clusterAdded;
-        handler.clusterRemovedHandler += clusterRemoved;
-	}
+        clustersToAdd = new List<Cluster>();
+        clustersToRemove = new List<MotionMapCursor>();
 
-    
+        Debug.Log("Add cluster listeners");
+        handler.clusterAdded += clusterAdded;
+        handler.clusterUpdated += clusterUpdated;
+        handler.clusterRemoved += clusterRemoved;
+    }
+
     void Update () {
         foreach (MotionMapZone z in zones) z.isOverInThisFrame = false;
 
+        foreach (MotionMapCursor mmc in clustersToRemove) removeCursorForCluster(mmc);
+        foreach (Cluster c in clustersToAdd) addCursorForCluster(c);
+        clustersToAdd.Clear();
+        clustersToRemove.Clear();
+
         for (int i=0;i<cursors.Count;i++)
         {
+            Vector3 targetPos = Vector3.zero;
+            Vector3 targetRot = Vector3.up;
+
             RaycastHit hit;
-            Cluster c = cursors[i].c;
-            if (Physics.Raycast(c.center, c.orientation, out hit, 100, sceneLayer))
+            if (Physics.Raycast(cursors[i].clusterCenter, cursors[i].clusterOrientation, out hit, 100, sceneLayer ))
             {
                 MotionMapZone z = hit.collider.GetComponent<MotionMapZone>();
                 if(z != null)
                 {
                     z.isOverInThisFrame = true;
                 }
+                targetPos = new Vector3(hit.transform.position.x, .01f, hit.transform.position.z);
+                targetRot = Vector3.up;
             }
+            else if (Physics.Raycast(cursors[i].clusterCenter, cursors[i].clusterOrientation, out hit, 100.0f, plateauLayer))
+            {
+                targetPos = hit.point + hit.normal * 0.01f;
+                targetRot = hit.normal;
+            }
+
+            cursors[i].transform.DOMove(targetPos, cursorSmoothing); //decal a bit to avoid mesh overlap
+            cursors[i].transform.DORotate(targetRot, cursorSmoothing);
         }
 
         foreach (MotionMapZone z in zones)
@@ -70,29 +97,79 @@ public class MotionMap : MonoBehaviour {
 
     void OnDisable()
     {
-        handler.clusterAddedHandler -= clusterAdded;
-        handler.clusterRemovedHandler -= clusterRemoved;
+        handler.clusterAdded -= clusterAdded;
+        handler.clusterUpdated -= clusterUpdated;
+        handler.clusterRemoved -= clusterRemoved;
     }
 
-    private void clusterRemoved(Cluster c)
-    {
-        cursors.Remove(getCursorForCluster(c));
 
-        if(handler.clusters.Count == 0)
+    private void addCursorForCluster(Cluster c)
+    {
+        if(getCursorForClusterID(c) == null)
+        {
+            Debug.Log("Add cursor for cluster " + c.id);
+            MotionMapCursor cursor = Instantiate(cursorPrefab).GetComponent<MotionMapCursor>();
+            cursor.clusterID = c.id;
+            cursor.transform.SetParent(transform.Find("Cursors"));
+            cursors.Add(cursor);
+            cursor.setColor(Color.HSVToRGB(cursor.clusterID * .31f, 1, 1));
+        }
+        else
+        {
+            Debug.Log("Cursor already exists for cluster " + c.id);
+        }
+
+        CancelInvoke("startDemo");
+        if (demoMode) stopDemo();
+    }
+
+    private void removeCursorForCluster(MotionMapCursor mmc)
+    {
+        Debug.Log("Remove cursor ");
+        cursors.Remove(mmc);
+        Destroy(mmc.gameObject);
+        
+        if (handler.clusters.Count == 0)
         {
             Invoke("startDemo", demoModeTime);
         }
     }
 
+
+    //Events
     private void clusterAdded(Cluster c)
     {
-        MotionMapCursor cursor = Instantiate(cursorPrefab).GetComponent<MotionMapCursor>();
-        cursor.transform.SetParent(transform.FindChild("Cursors"));
-        cursors.Add(cursor);
-        cursor.setColor(UnityEngine.Random.ColorHSV(.2f, .8f, 1, 1, 1, 1));
+        Debug.Log("Cluster Added !");
+        
+        if (clustersToAdd.Contains(c)) return;
+        clustersToAdd.Add(c);
+    }
 
-        CancelInvoke("startDemo");
-        if(demoMode) stopDemo();
+    private void clusterUpdated(Cluster c)
+    {
+       MotionMapCursor cursor = getCursorForClusterID(c);
+       if(cursor == null)
+        {
+            Debug.Log("Cursor not found for updated cluster " + c.id);
+            return;
+        }
+
+        cursor.update(c.center, c.orientation);
+    }
+
+    private void clusterRemoved(Cluster c)
+    {
+
+        Debug.Log("Cluster removed");
+        MotionMapCursor mmc = getCursorForClusterID(c);
+        if (clustersToAdd.Contains(c)) clustersToAdd.Remove(c);
+        if(mmc == null)
+        {
+            Debug.Log("No cursor found for removed cluster " + c.id);
+            return;
+        }
+
+        clustersToRemove.Add(mmc);
     }
 
 
@@ -126,15 +203,15 @@ public class MotionMap : MonoBehaviour {
     {
         demoMode = false;
     }
+    
 
-    public MotionMapCursor getCursorForCluster(Cluster c)
+    public MotionMapCursor getCursorForClusterID(Cluster c)
     {
-        foreach(MotionMapCursor mmc in cursors)
+        foreach (MotionMapCursor mmc in cursors)
         {
-            if (mmc.c == c) return mmc;
+            if (mmc.clusterID == c.id) return mmc;
         }
 
         return null;
     }
-
 }

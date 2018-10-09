@@ -18,9 +18,9 @@ public class KinectUILine : MonoBehaviour {
         if(rt == null) rt = GetComponent<RectTransform>();
         if (source == null ||  dest == null) return;
 
-        rt.position = source.position;
+        rt.position = new Vector3(source.position.x,source.position.y,0);
         float angle = Mathf.Atan2(dest.position.y - source.position.y, dest.position.x - source.position.x);
         rt.rotation = Quaternion.AngleAxis(angle*180/Mathf.PI-90, Vector3.forward);
-        rt.localScale = new Vector3(5, Vector2.Distance(source.position, dest.position));
+        rt.localScale = new Vector3(5, Vector2.Distance(source.position, dest.position),1);
 	}
 }

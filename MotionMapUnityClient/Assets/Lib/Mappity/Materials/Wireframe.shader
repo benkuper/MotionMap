@@ -1,4 +1,6 @@
-﻿Shader "Custom/Wireframe"
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/Wireframe"
 {
 	Properties
 	{
@@ -17,7 +19,9 @@
 		//Blend SrcAlpha OneMinusSrcAlpha
 
 		CGPROGRAM
+		
 		#include "UnityCG.cginc"
+		#pragma require geometry
 		#pragma target 3.0
 		#pragma vertex vert
 		#pragma geometry geom
@@ -43,7 +47,7 @@
 	v2g vert(appdata_base v)
 	{
 		v2g OUT;
-		OUT.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+		OUT.pos = UnityObjectToClipPos(v.vertex);
 		OUT.uv = v.texcoord; //the uv's arent used in this shader but are included in case you want to use them
 		return OUT;
 	}

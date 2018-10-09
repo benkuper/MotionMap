@@ -45,7 +45,7 @@ public class CalibrationUtil {
         //Settings based on Mapamok default settings
         calibrationType = CALIB_TYPE.CV_CALIB_USE_INTRINSIC_GUESS
                 | CALIB_TYPE.CV_CALIB_FIX_PRINCIPAL_POINT //required to work properly !!
-                | CALIB_TYPE.CV_CALIB_FIX_ASPECT_RATIO
+               // | CALIB_TYPE.CV_CALIB_FIX_ASPECT_RATIO
                 | CALIB_TYPE.CV_CALIB_FIX_K1
                 | CALIB_TYPE.CV_CALIB_FIX_K2
                 | CALIB_TYPE.CV_CALIB_FIX_K3

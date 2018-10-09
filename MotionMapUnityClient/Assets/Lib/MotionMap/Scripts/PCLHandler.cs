@@ -26,10 +26,12 @@ public class Cluster
 public class PCLHandler : MonoBehaviour
 {
 
-    public delegate void ClusterAddedDelegate(Cluster c);
-    public event ClusterAddedDelegate clusterAddedHandler;
-    public delegate void ClusterRemovedDelegate(Cluster c);
-    public event ClusterRemovedDelegate clusterRemovedHandler;
+    bool isInit = false;
+
+    public delegate void ClusterEvent(Cluster c);
+    public event ClusterEvent clusterAdded;
+    public event ClusterEvent clusterUpdated;
+    public event ClusterEvent clusterRemoved;
 
 
     KinectSensor sensor;
@@ -48,6 +50,7 @@ public class PCLHandler : MonoBehaviour
     byte[] colorData;
     Texture2D colorTex;
     CameraSpacePoint[] colorPoints;
+
 
     public bool kinectIsInit { get; private set; }
     public int depthWidth { get; private set; }
@@ -114,9 +117,8 @@ public class PCLHandler : MonoBehaviour
     public Vector3 colorPos;
     Color[] clusterColors;
     
-    void Start()
+    void Awake()
     {
-        initKinect();
         tree = new KDTree(); //avoid null, will be replace after
         clusters = new List<Cluster>();
 
@@ -134,10 +136,20 @@ public class PCLHandler : MonoBehaviour
             calib3DPoints[i] = Vector3.zero;
         }
 
+        Invoke("init", 1);
+    }
+
+    private void init()
+    {
+        load();
+        initKinect();
+        isInit = true;
     }
 
     void Update()
     {
+        if (!isInit) return;
+
         updateKinect();
 
         if (!processClusters || clusterReady)
@@ -165,6 +177,8 @@ public class PCLHandler : MonoBehaviour
 
     void OnDisable()
     {
+        save();
+
         Camera.onPostRender -= postRender;
         depthReader.Dispose();
         sensor.Close();
@@ -372,7 +386,11 @@ public class PCLHandler : MonoBehaviour
             }
 
             clusterCenter /= clusterQueue.Count;
-            if (clusterQueue.Count >= minClusterSize) newClusters.Add(new Cluster(clusterQueue.ToArray(), -1, clusterCenter));
+            if (clusterQueue.Count >= minClusterSize)
+            {
+                Cluster c = new Cluster(clusterQueue.ToArray(), -1, clusterCenter);
+                newClusters.Add(c);
+            }
         }
 
         //Track clusters (correspondance)
@@ -399,20 +417,78 @@ public class PCLHandler : MonoBehaviour
             
         }
 
-        clusters = newClusters;
-        numClusters = clusters.Count;
 
-        //Assign new ids
-        for (int i = 0; i < numClusters; i++)
+        //All remaining clusters in the current clusters list are removed ones, notify
+        foreach(Cluster c in clusters)
         {
-            if (clusters[i].id != -1) continue;
-            clusters[i].id = getNextClusterId();
+            if (clusterRemoved != null) clusterRemoved(c);
         }
 
+        //For all clusters that have not got ids (which mean they are new), assign new ids and notify
+        for (int i = 0; i < newClusters.Count ; i++)
+        {
+            if (newClusters[i].id != -1) continue;
+            newClusters[i].id = getNextClusterId(newClusters);
+            if(clusterAdded != null) clusterAdded(newClusters[i]);
+        }
+        
+
+
+        //Check for removed clusters
+        /*
+         for (int i = 0; i < clusters.Count; i++)
+        {
+            bool found = false;
+            for (int j = 0; j < newClusters.Count; j++)
+            {
+                if (clusters[i].id == newClusters[j].id)
+                {
+                    //found
+                    found = true;
+                    break;
+                }
+            }
+            if(!found)
+            {
+                if (clusterAdded != null) clusterRemoved(clusters[i]);
+            }
+        }
+        */
+
+        //Check for added cluster
+        /*
+        for (int i = 0; i < newClusters.Count; i++)
+        {
+            bool found = false;
+            for (int j = 0; j < clusters.Count; j++)
+            {
+                if (newClusters[i].id == clusters[j].id)
+                {
+                    //found
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                if (clusterAdded != null) clusterAdded(newClusters[i]);
+            }
+        }
+        */
+
+        clusters = newClusters;
+        numClusters = clusters.Count;
 
         Array.Copy(worldPoints, clusterPoints, numGoodPoints);
 
         if (processClusterOrientation) computeClusterOrientation();
+        
+        for(int i = 0;i < numClusters;i++)
+        {
+            if (clusters[i] == null) continue;
+            clusterUpdated(clusters[i]);
+        }
 
         clusterReady = true;
 
@@ -465,23 +541,23 @@ public class PCLHandler : MonoBehaviour
             if(((c.center + absOrientation)-pointingPos).magnitude > (c.center- pointingPos).magnitude)
             {
                 absOrientation = -absOrientation;
-                Debug.Log("Inverse !");// absOrientation -= absOrientation;
+                //Debug.Log("Inverse !");// absOrientation -= absOrientation;
             }
 
             //Debug.Log(mainOrientation);
-            c.orientation = absOrientation;
+            c.orientation = absOrientation.normalized;
         }
     }
 
-    int getNextClusterId()
+    int getNextClusterId(List<Cluster> clusterList)
     {
         int result = 0;
         while (true)
         {
             bool found = false;
-            for (int i = 0; i < numClusters; i++)
+            for (int i = 0; i < clusterList.Count; i++)
             {
-                if (clusters[i].id == result)
+                if (clusterList[i].id == result)
                 {
                     found = true;
                     break;
@@ -523,7 +599,7 @@ public class PCLHandler : MonoBehaviour
         }
         else
         {
-            for (int i = 0; i < numClusters; i++)
+            for (int i = 0; i < clusters.Count; i++)
             {
                 Cluster c = clusters[i];
                 GL.Color(Color.white);
@@ -633,5 +709,22 @@ public class PCLHandler : MonoBehaviour
             Gizmos.color = calibPointColors[i];
             Gizmos.DrawSphere(transform.TransformPoint(calib3DPoints[i]), .02f);
         }
+    }
+
+    void save()
+    {
+        SaveData data = new SaveData();
+        for (int i = 0; i < targets.Length; i++) data["target" + i] = targets[i].localPosition;
+        data.Save(Application.dataPath + "/pcl_calib.uml");
+    }
+
+    public void load()
+    {
+        SaveData data = SaveData.Load(Application.dataPath + "/pcl_calib.uml");
+        if (data == null) return;
+
+        for (int i = 0; i < targets.Length; i++) targets[i].localPosition = data.GetValue<Vector3>("target" + i);
+
+        Invoke("updateKinectCalib", 3);
     }
 }

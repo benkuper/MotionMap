@@ -70,9 +70,9 @@ public class MotionMapZone : MonoBehaviour {
     public void setSelectionProgression(float value)
     {
         if (!selected)
-        {
-            selectionProgression = value;
-            OSCMaster.sendMessage("/targetSelectionProgress", new object[] { id });
+        { 
+            selectionProgression = Mathf.Clamp01(value); 
+            OSCMaster.sendMessage("/targetSelectionProgress", new object[] { id, selectionProgression });
         }
     }
 
