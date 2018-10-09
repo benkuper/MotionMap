@@ -5,14 +5,14 @@ using UnityEngine;
 using System.Collections;
 
 [ExecuteInEditMode]
-public class MouseOrbitImproved : OSCControllable
+public class MouseOrbitImproved : Controllable
 {
     public Transform target;
 
-    [OSCProperty("target")]
+    [OSCProperty]
     public Vector3 targetOffset;
 
-    [OSCProperty("distance")]
+    [OSCProperty]
     public float distance = 5.0f;
 
     public float xSpeed = 20.0f;
@@ -24,12 +24,12 @@ public class MouseOrbitImproved : OSCControllable
     float distanceMin = 0.1f;
     float distanceMax = 500;
 
-    [OSCProperty("x")]
+    [OSCProperty]
     public float x = 0.0f;
-    [OSCProperty("y")]
+    [OSCProperty]
     public float y = 0.0f;
 
-    [OSCProperty("smooth")]
+    [OSCProperty]
     public float smoothTime = 0.2f;
 
     private float xSmooth = 0.0f;
@@ -46,23 +46,33 @@ public class MouseOrbitImproved : OSCControllable
     private float tyVelocity = 0.0f;
     private float tzVelocity = 0.0f;
 
-
-    public override void Start()
+    public override void Awake()
     {
+        TargetScript = this;
+        base.Awake();
     }
 
     public override void Update()
     {
+        base.Update();
+
         if (target)
         {
             if (Input.GetMouseButton(0) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
 
-                x += Input.GetAxis("Mouse X") * xSpeed;
-                y -= Input.GetAxis("Mouse Y") * ySpeed;
+                if(Input.GetKey(KeyCode.LeftShift))
+                {
+                    targetOffset.x -= Input.GetAxis("Mouse X") * xSpeed / 100;
+                    targetOffset.z -= Input.GetAxis("Mouse Y") * ySpeed / 100;
+                }
+                else
+                {
+                    x += Input.GetAxis("Mouse X") * xSpeed;
+                    y -= Input.GetAxis("Mouse Y") * ySpeed;
 
-                y = Mathf.Clamp(y, yMinLimit, yMaxLimit);
-
+                    y = Mathf.Clamp(y, yMinLimit, yMaxLimit);
+                }
             }
 
             if (UnityEngine.EventSystems.EventSystem.current == null || !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())

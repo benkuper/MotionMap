@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using DG.Tweening;
+using UnityOSC;
 
 [RequireComponent(typeof(Collider))]
 public class MotionMapZone : MonoBehaviour {
@@ -64,15 +65,18 @@ public class MotionMapZone : MonoBehaviour {
             }
         }
 
-        OSCMaster.sendMessage(value ? "/targetOver" : "/targetOut", new object[] { id });
+        OSCMessage m = new OSCMessage(value ? "/zone/"+id+"/over" : "/zone/"+id+"/out");
+        OSCMaster.sendMessage(m); 
+
     }
 
     public void setSelectionProgression(float value)
     {
         if (!selected)
         { 
-            selectionProgression = Mathf.Clamp01(value); 
-            OSCMaster.sendMessage("/targetSelectionProgress", new object[] { id, selectionProgression });
+            selectionProgression = Mathf.Clamp01(value);
+            OSCMessage m = new OSCMessage("zone/" + id + "/selectionProgress", new object[] { selectionProgression });
+            OSCMaster.sendMessage(m);
         }
     }
 
@@ -89,7 +93,8 @@ public class MotionMapZone : MonoBehaviour {
             resetAllMaterialsColors();
         }
 
-        OSCMaster.sendMessage(value ? "/targetSelected":"/targetDeselected", new object[] { id });
+        OSCMessage m = new OSCMessage(value?"/zone/"+id+"/selected":"/zone/"+id+"/deselected");
+        OSCMaster.sendMessage(m);
     }
 
     void OnDrawGizmos()

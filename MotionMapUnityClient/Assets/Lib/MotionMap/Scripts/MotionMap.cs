@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System;
 using DG.Tweening;
+using UnityOSC;
 
 public class MotionMap : MonoBehaviour {
 
@@ -29,6 +30,8 @@ public class MotionMap : MonoBehaviour {
     MotionMapZone[] zones;
     MotionMapZone selectedZone;
 
+    GameObject canvas;
+
 	void Awake () {
         sceneLayer = LayerMask.GetMask(new string[] { "scene" });
         plateauLayer = LayerMask.GetMask(new string[] { "plateau" });
@@ -43,6 +46,8 @@ public class MotionMap : MonoBehaviour {
         handler.clusterAdded += clusterAdded;
         handler.clusterUpdated += clusterUpdated;
         handler.clusterRemoved += clusterRemoved;
+
+        canvas = transform.Find("Canvas").gameObject;
     }
 
     void Update () {
@@ -93,6 +98,7 @@ public class MotionMap : MonoBehaviour {
             }                
         }
 
+        if (Input.GetKeyDown(KeyCode.C)) canvas.SetActive(!canvas.activeInHierarchy);
     }
 
     void OnDisable()
@@ -189,7 +195,8 @@ public class MotionMap : MonoBehaviour {
         }
 
 
-        OSCMaster.sendMessage("targetChanged", new object[] { selectedZone.id });
+        OSCMessage m = new OSCMessage("/lastSelectedZone", new object[] { selectedZone.id });
+        OSCMaster.sendMessage(m);
     }
 
 

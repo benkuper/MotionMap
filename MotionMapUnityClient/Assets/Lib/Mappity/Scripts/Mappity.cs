@@ -23,6 +23,7 @@ public class Mappity : MonoBehaviour {
     MappityProjPanel projPanel;
 
     [Header("UI")]
+    GameObject canvas;
     public ToggleGroup projToggleGroup;
     public RawImage feedbackImage;
 
@@ -43,6 +44,7 @@ public class Mappity : MonoBehaviour {
         projectorContainer = transform.Find("Projectors");
         projectorListContainer = projToggleGroup.transform;
         projPanel = GetComponentInChildren<MappityProjPanel>();
+        canvas = transform.Find("Canvas").gameObject;
 
         if (mainCam == null) mainCam = Camera.main;
         
@@ -58,7 +60,7 @@ public class Mappity : MonoBehaviour {
     }
 	
 	void Update () {
-	
+        if (Input.GetKeyDown(KeyCode.M)) canvas.SetActive(!canvas.activeInHierarchy);
 	}
 
 
