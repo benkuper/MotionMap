@@ -189,7 +189,7 @@ public class PCLHandler : MonoBehaviour
 
         Camera.onPostRender -= postRender;
         if(depthReader != null) depthReader.Dispose();
-        sensor.Close();
+        if(sensor != null) sensor.Close();
         if(clusterTask != null) clusterTask.Cancel();
     }
 
@@ -200,7 +200,7 @@ public class PCLHandler : MonoBehaviour
             depthReader.Dispose();
 
         }
-        sensor.Close();
+        if(sensor != null) sensor.Close();
         if(clusterTask != null) clusterTask.Cancel();
     }
 
