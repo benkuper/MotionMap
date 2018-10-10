@@ -10,13 +10,14 @@ public class MMOChangeMat : MMSelectableObject
     List<Color> initMaterialColors; //keep init color to revert
     public Color overColor = Color.yellow;
     public Color selectionColor = Color.green;
+    public bool affectChildrens;
 
     void Start()
     {
         materials = new List<Material>();
         initMaterialColors = new List<Color>();
 
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        Renderer[] renderers = affectChildrens ? GetComponentsInChildren<Renderer>() : GetComponents<Renderer>();
 
         foreach (Renderer r in renderers)
         {
