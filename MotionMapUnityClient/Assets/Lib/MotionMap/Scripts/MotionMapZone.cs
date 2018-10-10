@@ -65,7 +65,8 @@ public class MotionMapZone : MonoBehaviour {
             }
         }
 
-        OSCMessage m = new OSCMessage(value ? "/zone/"+id+"/over" : "/zone/"+id+"/out");
+        OSCMessage m = new OSCMessage("/zone/"+id+"/over");
+        m.Append(value?1:0);
         OSCMaster.sendMessage(m); 
 
     }
@@ -74,8 +75,15 @@ public class MotionMapZone : MonoBehaviour {
     {
         if (!selected)
         { 
-            selectionProgression = Mathf.Clamp01(value);
-            OSCMessage m = new OSCMessage("zone/" + id + "/selectionProgress", selectionProgression);
+            value = Mathf.Clamp01(value);
+            if (value == selectionProgression)
+            {
+                // Debug.Log("Same value !");
+                return;
+            }
+            selectionProgression = value;
+            OSCMessage m = new OSCMessage("/zone/" + id + "/selectionProgress");
+            m.Append(selectionProgression);
             OSCMaster.sendMessage(m);
         }
     }

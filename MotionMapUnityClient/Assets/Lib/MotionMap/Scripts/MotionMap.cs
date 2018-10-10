@@ -19,6 +19,7 @@ public class MotionMap : MonoBehaviour {
     
     [Header("Zone Selection")]
     public float selectionTime = 2;
+    public float progressionDecayTime = 1;
 
     [Header("Demo mode")]
     public float demoModeTime = 30;
@@ -95,7 +96,10 @@ public class MotionMap : MonoBehaviour {
                 {
                     setSelectedZone(z);
                 }
-            }                
+            }else
+            {
+                z.setSelectionProgression(z.selectionProgression - Time.deltaTime / progressionDecayTime);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.C)) canvas.SetActive(!canvas.activeInHierarchy);
@@ -195,7 +199,8 @@ public class MotionMap : MonoBehaviour {
         }
 
 
-        OSCMessage m = new OSCMessage("/lastSelectedZone", selectedZone.id);
+        OSCMessage m = new OSCMessage("/lastSelectedZone");
+        m.Append(selectedZone.id);
         OSCMaster.sendMessage(m);
     }
 

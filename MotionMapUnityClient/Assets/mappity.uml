@@ -17,96 +17,201 @@
     <DataContainer>
       <key>proj0_spacePoint0</key>
       <value xsi:type="Vector3">
-        <x>-0.15</x>
-        <y>0.3</y>
-        <z>0.15</z>
+        <x>-0.8</x>
+        <y>0.25</y>
+        <z>0.295000017</z>
       </value>
     </DataContainer>
     <DataContainer>
       <key>proj0_imagePoint0</key>
       <value xsi:type="Vector2">
-        <x>290.739868</x>
-        <y>341.097839</y>
+        <x>320.1663</x>
+        <y>272.1088</y>
       </value>
     </DataContainer>
     <DataContainer>
       <key>proj0_spacePoint1</key>
       <value xsi:type="Vector3">
-        <x>-0.15</x>
+        <x>-1.2</x>
         <y>0</y>
-        <z>0.15</z>
+        <z>0.295000017</z>
       </value>
     </DataContainer>
     <DataContainer>
       <key>proj0_imagePoint1</key>
       <value xsi:type="Vector2">
-        <x>295.450317</x>
-        <y>206.220154</y>
+        <x>251.062622</x>
+        <y>238.035339</y>
       </value>
     </DataContainer>
     <DataContainer>
       <key>proj0_spacePoint2</key>
       <value xsi:type="Vector3">
-        <x>-0.15</x>
-        <y>0.3</y>
-        <z>-0.15</z>
+        <x>1.2</x>
+        <y>0</y>
+        <z>0.295000017</z>
       </value>
     </DataContainer>
     <DataContainer>
       <key>proj0_imagePoint2</key>
       <value xsi:type="Vector2">
-        <x>408.095551</x>
-        <y>394.739471</y>
+        <x>661.0818</x>
+        <y>246.026245</y>
       </value>
     </DataContainer>
     <DataContainer>
       <key>proj0_spacePoint3</key>
       <value xsi:type="Vector3">
-        <x>-0.15</x>
-        <y>0</y>
-        <z>-0.15</z>
+        <x>1.2</x>
+        <y>0.25</y>
+        <z>0.695</z>
       </value>
     </DataContainer>
     <DataContainer>
       <key>proj0_imagePoint3</key>
       <value xsi:type="Vector2">
-        <x>416.6267</x>
-        <y>173.108917</y>
+        <x>635.0003</x>
+        <y>300.8687</y>
       </value>
     </DataContainer>
     <DataContainer>
       <key>proj0_spacePoint4</key>
       <value xsi:type="Vector3">
-        <x>0.15</x>
-        <y>0.3</y>
-        <z>-0.15</z>
+        <x>0.8</x>
+        <y>0.25</y>
+        <z>0.295000017</z>
       </value>
     </DataContainer>
     <DataContainer>
       <key>proj0_imagePoint4</key>
       <value xsi:type="Vector2">
-        <x>534.337</x>
-        <y>337.393921</y>
+        <x>595.9818</x>
+        <y>267.641663</y>
       </value>
     </DataContainer>
     <DataContainer>
       <key>proj0_spacePoint5</key>
       <value xsi:type="Vector3">
-        <x>0.15</x>
-        <y>0</y>
-        <z>-0.15</z>
+        <x>-1.2</x>
+        <y>0.25</y>
+        <z>0.695</z>
       </value>
     </DataContainer>
     <DataContainer>
       <key>proj0_imagePoint5</key>
       <value xsi:type="Vector2">
-        <x>534.411865</x>
-        <y>221.642517</y>
+        <x>236.270309</x>
+        <y>289.790131</y>
       </value>
     </DataContainer>
     <DataContainer>
       <key>proj1_numPoints</key>
-      <value xsi:type="xsd:int">0</value>
+      <value xsi:type="xsd:int">7</value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_spacePoint0</key>
+      <value xsi:type="Vector3">
+        <x>-1.2</x>
+        <y>0.25</y>
+        <z>0.695</z>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_imagePoint0</key>
+      <value xsi:type="Vector2">
+        <x>195.732178</x>
+        <y>295.468323</y>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_spacePoint1</key>
+      <value xsi:type="Vector3">
+        <x>-1.2</x>
+        <y>0</y>
+        <z>0.695</z>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_imagePoint1</key>
+      <value xsi:type="Vector2">
+        <x>210.000534</x>
+        <y>177.978012</y>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_spacePoint2</key>
+      <value xsi:type="Vector3">
+        <x>-1.2</x>
+        <y>0</y>
+        <z>0.295000017</z>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_imagePoint2</key>
+      <value xsi:type="Vector2">
+        <x>364.289063</x>
+        <y>127.770172</y>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_spacePoint3</key>
+      <value xsi:type="Vector3">
+        <x>-1.2</x>
+        <y>0.25</y>
+        <z>0.295000017</z>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_imagePoint3</key>
+      <value xsi:type="Vector2">
+        <x>359.738647</x>
+        <y>273.667053</y>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_spacePoint4</key>
+      <value xsi:type="Vector3">
+        <x>0.8</x>
+        <y>0.25</y>
+        <z>0.295000017</z>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_imagePoint4</key>
+      <value xsi:type="Vector2">
+        <x>588.252258</x>
+        <y>344.335938</y>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_spacePoint5</key>
+      <value xsi:type="Vector3">
+        <x>-0.8</x>
+        <y>0.25</y>
+        <z>0.295000017</z>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_imagePoint5</key>
+      <value xsi:type="Vector2">
+        <x>465.255249</x>
+        <y>306.298553</y>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_spacePoint6</key>
+      <value xsi:type="Vector3">
+        <x>-0.8</x>
+        <y>0</y>
+        <z>0.295000017</z>
+      </value>
+    </DataContainer>
+    <DataContainer>
+      <key>proj1_imagePoint6</key>
+      <value xsi:type="Vector2">
+        <x>462.4485</x>
+        <y>203.60405</y>
+      </value>
     </DataContainer>
   </serializedData>
 </SaveData>
