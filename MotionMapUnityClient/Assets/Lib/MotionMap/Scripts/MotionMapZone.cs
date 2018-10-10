@@ -86,13 +86,20 @@ public class MotionMapZone : MonoBehaviour {
     void OnDrawGizmos()
     {
         Color c= Color.yellow;
-        c.a = .3f;
+        c.a = .1f;
         Gizmos.color = c;
         Gizmos.DrawCube(transform.position, transform.lossyScale);
-        Gizmos.color = new Color(1f, 1f, 0,.6f);
+        Gizmos.color = new Color(1f, 1f, 0,.3f);
         Gizmos.DrawWireCube(transform.position, transform.lossyScale);
     }
 
-
-  
-}
+    void OnDrawGizmosSelected()
+    {
+        Color c = Color.yellow;
+        c.a = .3f;
+        Gizmos.color = c;
+        Gizmos.DrawCube(transform.position, transform.lossyScale);
+        Gizmos.color = new Color(1f, 1f, 0, .3f);
+        Gizmos.DrawWireCube(transform.position, transform.lossyScale);
+    }
+  }
