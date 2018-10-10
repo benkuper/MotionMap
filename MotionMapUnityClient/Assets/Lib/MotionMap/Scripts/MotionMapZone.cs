@@ -43,7 +43,7 @@ public class MotionMapZone : MonoBehaviour {
         if (over == value) return;
 
         over = value;
-        foreach (MMSelectableObject mmo in mmos) mmo.overChanged(value);
+        foreach (MMSelectableObject mmo in mmos) if(mmo != null) mmo.overChanged(value);
         if (!selected && value)  overStartTime = Time.time;
         
         OSCMessage m = new OSCMessage("/zone/"+id+"/over");
@@ -63,7 +63,7 @@ public class MotionMapZone : MonoBehaviour {
                 return;
             }
 
-            foreach (MMSelectableObject mmo in mmos) mmo.selectionProgress(value);
+            foreach (MMSelectableObject mmo in mmos)  if(mmo != null) mmo.selectionProgress(value);
 
             selectionProgression = value;
             OSCMessage m = new OSCMessage("/zone/" + id + "/selectionProgress");
@@ -77,7 +77,7 @@ public class MotionMapZone : MonoBehaviour {
         if (selected == value) return;
 
         selected = value;
-        foreach (MMSelectableObject mmo in mmos) mmo.selectionChanged(value);
+        foreach (MMSelectableObject mmo in mmos) if(mmo != null) mmo.selectionChanged(value);
 
         OSCMessage m = new OSCMessage(value?"/zone/"+id+"/selected":"/zone/"+id+"/deselected");
         OSCMaster.sendMessage(m);
