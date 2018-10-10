@@ -6,6 +6,8 @@ using UnityOSC;
 
 public class MotionMap : MonoBehaviour {
 
+    public static MotionMap instance;
+
     public PCLHandler handler;
 
     [Header("Cursor")]
@@ -34,6 +36,8 @@ public class MotionMap : MonoBehaviour {
     GameObject canvas;
 
 	void Awake () {
+        instance = this;
+
         sceneLayer = LayerMask.GetMask(new string[] { "scene" });
         plateauLayer = LayerMask.GetMask(new string[] { "plateau" });
 
