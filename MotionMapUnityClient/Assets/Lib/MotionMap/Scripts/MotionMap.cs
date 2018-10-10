@@ -18,8 +18,9 @@ public class MotionMap : MonoBehaviour {
     List<MotionMapCursor> cursors;
     List<Cluster> clustersToAdd;
     List<MotionMapCursor> clustersToRemove;
-    
+
     [Header("Zone Selection")]
+    public bool autoDeselectOnNewSelection;
     public float selectionTime = 2;
     public float progressionDecayTime = 1;
 
@@ -193,7 +194,7 @@ public class MotionMap : MonoBehaviour {
         if (zone == selectedZone) return;
         if(selectedZone != null)
         {
-            selectedZone.setSelected(false);
+            if(autoDeselectOnNewSelection) selectedZone.setSelected(false);
         }
 
         selectedZone = zone;

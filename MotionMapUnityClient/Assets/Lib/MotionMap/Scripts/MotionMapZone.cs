@@ -19,8 +19,9 @@ public class MotionMapZone : MonoBehaviour {
     [HideInInspector]
     public bool selected;
    
-
+    [Header("Selection")]
     public float selectionProgression;
+    public float autoDeselectOnTime = 5;
 
 	// Use this for initialization
 	void Start () {
@@ -81,6 +82,13 @@ public class MotionMapZone : MonoBehaviour {
 
         OSCMessage m = new OSCMessage(value?"/zone/"+id+"/selected":"/zone/"+id+"/deselected");
         OSCMaster.sendMessage(m);
+
+        Invoke("deselect", Mathf.Max(autoDeselectOnTime, 1));
+    }
+
+    public void deselect()
+    {
+        setSelected(false);
     }
 
     void OnDrawGizmos()

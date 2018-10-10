@@ -24,7 +24,7 @@ public class MMOChangeMat : MMSelectableObject
             foreach (Material m in r.materials)
             {
                 materials.Add(m);
-                initMaterialColors.Add(m.color);
+                initMaterialColors.Add(m.GetColor("_EmissionColor"));
             }
         }
     }
@@ -63,7 +63,7 @@ public class MMOChangeMat : MMSelectableObject
         for (int i = 0; i < materials.Count; i++)
         {
             Material m = materials[i];
-            m.DOColor(targetColor, time);
+            m.DOColor(targetColor, "_EmissionColor", time);
         }
     }
 
@@ -73,7 +73,7 @@ public class MMOChangeMat : MMSelectableObject
         {
             Material m = materials[i];
             Color c = initMaterialColors[i];
-            m.DOColor(c, time);
+            m.DOColor(c, "_EmissionColor",time);
         }
     }
 }
