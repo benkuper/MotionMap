@@ -49,6 +49,7 @@ public class MotionMap : MonoBehaviour {
         handler.clusterRemoved += clusterRemoved;
 
         canvas = transform.Find("Canvas").gameObject;
+        canvas.SetActive(false);
     }
 
     void Update () {

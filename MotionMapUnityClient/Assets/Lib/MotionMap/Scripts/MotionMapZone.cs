@@ -1,16 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using DG.Tweening;
 using UnityOSC;
 
 [RequireComponent(typeof(Collider))]
 public class MotionMapZone : MonoBehaviour {
 
     public string id;
-    public Renderer[] objects;
-
-    List<Material> materials;
-    List<Color> initMaterialColors; //keep init color to revert
+    public GameObject[] objects;
+    public List<MMSelectableObject> mmos;
 
     [HideInInspector]
     public float overStartTime;
@@ -29,15 +26,10 @@ public class MotionMapZone : MonoBehaviour {
 	void Start () {
         if (id == "") id = gameObject.name;
 
-        materials = new List<Material>();
-        initMaterialColors = new List<Color>();
-	    foreach(Renderer r in objects)
+        mmos = new List<MMSelectableObject>();
+        foreach (GameObject go in objects)
         {
-            foreach(Material m in r.materials)
-            {
-                materials.Add(m);
-                initMaterialColors.Add(m.color);
-            }
+            mmos.AddRange(go.GetComponents<MMSelectableObject>());
         }
 	}
 	
@@ -51,20 +43,9 @@ public class MotionMapZone : MonoBehaviour {
         if (over == value) return;
 
         over = value;
-
-        if (!selected)
-        {
-            if (value)
-            {
-                overStartTime = Time.time;
-                setAllMaterialsColors(Color.yellow);
-            }
-            else
-            {
-                resetAllMaterialsColors();
-            }
-        }
-
+        foreach (MMSelectableObject mmo in mmos) mmo.overChanged(value);
+        if (!selected && value)  overStartTime = Time.time;
+        
         OSCMessage m = new OSCMessage("/zone/"+id+"/over");
         m.Append(value?1:0);
         OSCMaster.sendMessage(m); 
@@ -81,6 +62,9 @@ public class MotionMapZone : MonoBehaviour {
                 // Debug.Log("Same value !");
                 return;
             }
+
+            foreach (MMSelectableObject mmo in mmos) mmo.selectionProgress(value);
+
             selectionProgression = value;
             OSCMessage m = new OSCMessage("/zone/" + id + "/selectionProgress");
             m.Append(selectionProgression);
@@ -93,13 +77,7 @@ public class MotionMapZone : MonoBehaviour {
         if (selected == value) return;
 
         selected = value;
-        if (value)
-        {
-            setAllMaterialsColors(Color.green);
-        }else
-        {
-            resetAllMaterialsColors();
-        }
+        foreach (MMSelectableObject mmo in mmos) mmo.selectionChanged(value);
 
         OSCMessage m = new OSCMessage(value?"/zone/"+id+"/selected":"/zone/"+id+"/deselected");
         OSCMaster.sendMessage(m);
@@ -116,22 +94,5 @@ public class MotionMapZone : MonoBehaviour {
     }
 
 
-    void setAllMaterialsColors(Color targetColor, float time = .5f)
-    {
-        for (int i = 0; i < materials.Count; i++)
-        {
-            Material m = materials[i];
-            m.DOColor(targetColor, time);
-        }
-    }
-
-    void resetAllMaterialsColors(float time = .5f)
-    {
-        for (int i = 0; i < materials.Count; i++)
-        {
-            Material m = materials[i];
-            Color c = initMaterialColors[i];
-            m.DOColor(c, time);
-        }
-    }
+  
 }

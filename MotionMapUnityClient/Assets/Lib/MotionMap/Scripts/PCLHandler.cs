@@ -59,17 +59,23 @@ public class PCLHandler : MonoBehaviour
 
     public int numGoodPoints;
 
+
     [Header("PointCloud Configuration")]
     public bool useCollider;
     public BoxCollider pclCollider;
     [Range(1, 20)]
     public int steps = 4;
+    [Range(1, 20)]
+    public int debugSteps = 4;
 
     [Header("Visualization")]
     public Camera mainCamera;
     public bool showPCL;
     [Range(0, .1f)]
     public float pointSize;
+    [Range(0, .1f)]
+    public float debugPointSize;
+
     public Material pclMat;
 
     [Header("Color Feedback")]
@@ -109,7 +115,9 @@ public class PCLHandler : MonoBehaviour
     Color[] calibPointColors = new Color[3] { Color.yellow, Color.red, Color.blue };
 
     [Header("Debug")]
-    public bool drawDebug;
+    public bool debugMode;
+    public bool drawInEditor;
+    public bool updatePCL;
     public bool updateTree;
     public float orientationLineFactor = 1;
 
@@ -181,7 +189,7 @@ public class PCLHandler : MonoBehaviour
 
         Camera.onPostRender -= postRender;
         if(depthReader != null) depthReader.Dispose();
-        sensor.Close();
+        if(sensor != null) sensor.Close();
         if(clusterTask != null) clusterTask.Cancel();
     }
 
@@ -192,7 +200,7 @@ public class PCLHandler : MonoBehaviour
             depthReader.Dispose();
 
         }
-        sensor.Close();
+        if(sensor != null) sensor.Close();
         if(clusterTask != null) clusterTask.Cancel();
     }
 
@@ -298,11 +306,14 @@ public class PCLHandler : MonoBehaviour
     void updateWorldPoints()
     {
         if (!kinectIsInit) return;
+        if (!updatePCL) return;
+
+        int _steps = debugMode ? debugSteps : steps;
 
         numGoodPoints = 0;
-        for (int ty = 0; ty < depthHeight; ty += steps)
+        for (int ty = 0; ty < depthHeight; ty += _steps)
         {
-            for (int tx = 0; tx < depthWidth; tx += steps)
+            for (int tx = 0; tx < depthWidth; tx += _steps)
             {
                 int index = ty * depthWidth + tx;
                 CameraSpacePoint p = cameraPoints[index];
@@ -582,7 +593,7 @@ public class PCLHandler : MonoBehaviour
 
         bool camCheck = false;
         if (Camera.current == mainCamera) camCheck = true;
-        else if (Camera.current.cameraType == CameraType.SceneView && drawDebug) camCheck = true;
+        else if (Camera.current.cameraType == CameraType.SceneView && drawInEditor) camCheck = true;
         if (!camCheck) return;
 
 
@@ -634,7 +645,7 @@ public class PCLHandler : MonoBehaviour
 
     void drawCross(Vector3 p, float sizeFactor = 1)
     {
-        float targetSize = pointSize * sizeFactor;
+        float targetSize = (debugMode?debugPointSize:pointSize) * sizeFactor;
         GL.TexCoord(Vector3.zero);
         GL.Vertex(p - Vector3.forward * targetSize);
         GL.TexCoord(Vector3.right);
@@ -730,5 +741,15 @@ public class PCLHandler : MonoBehaviour
         for (int i = 0; i < targets.Length; i++) targets[i].localPosition = data.GetValue<Vector3>("target" + i);
 
         Invoke("updateKinectCalib", 3);
+    }
+
+    //UI Helpers
+    public void setDebugMode(bool value)
+    {
+        debugMode = value;
+        processClusters = !value;
+        useCollider = !value;
+        updateWorldPoints();
+        updatePCL = !value;
     }
 }
