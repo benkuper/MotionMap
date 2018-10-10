@@ -31,20 +31,16 @@ public class MotionMapTools
             List<GameObject> objectsToAdd = new List<GameObject>();
 
             Bounds bounds = new Bounds();
+            z.objects = new GameObject[objects.Length];
 
-            foreach (GameObject go in objects)
+            for(int i=0;i<objects.Length;i++)
             {
-                if (go.transform.parent == sceneContainer.transform)
-                {
-                    //Debug.Log("Add Game object " + go.name);
-                    objectsToAdd.Add(go);
-                    if (bounds.size == Vector3.zero) bounds = GetMaxBounds(go);
-                    else bounds.Encapsulate(GetMaxBounds(go));
-                }
+                z.objects[i] = objects[i];
+                if (bounds.size == Vector3.zero) bounds = GetMaxBounds(objects[i]);
+                else bounds.Encapsulate(GetMaxBounds(objects[i]));
             }
 
-            z.objects = new GameObject[objectsToAdd.Count];
-            for (int i = 0; i < objectsToAdd.Count; i++) z.objects[i] = objectsToAdd[i];
+          
             z.transform.position = bounds.center;
             z.transform.localScale = bounds.size * 1.2f;
 
