@@ -78,7 +78,7 @@ public class MotionMap : MonoBehaviour {
                 {
                     z.isOverInThisFrame = true;
                 }
-                targetPos = new Vector3(hit.transform.position.x, .01f, hit.transform.position.z);
+                targetPos = new Vector3(hit.transform.position.x, 0.01f, hit.transform.position.z);
                 targetRot = Vector3.up;
             }
             else if (Physics.Raycast(cursors[i].clusterCenter, cursors[i].clusterOrientation, out hit, 100.0f, plateauLayer))
@@ -87,8 +87,8 @@ public class MotionMap : MonoBehaviour {
                 targetRot = hit.normal;
             }
 
-            cursors[i].transform.DOMove(targetPos, cursorSmoothing); //decal a bit to avoid mesh overlap
-            cursors[i].transform.DORotate(targetRot, cursorSmoothing);
+            cursors[i].transform.DOLocalMove(targetPos, cursorSmoothing); //decal a bit to avoid mesh overlap
+            cursors[i].transform.DOLocalRotate(targetRot, cursorSmoothing);
         }
 
         foreach (MotionMapZone z in zones)

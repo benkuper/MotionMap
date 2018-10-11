@@ -25,7 +25,7 @@ public class MMORotate : MMSelectableObject
     public override void overChanged(bool isOver)
     {
         base.overChanged(isOver);
-        if (!isOver) goHome();
+        if (!isOver && !isSelected) goHome(); 
     }
 
     public override void selectionChanged(bool isSelected)

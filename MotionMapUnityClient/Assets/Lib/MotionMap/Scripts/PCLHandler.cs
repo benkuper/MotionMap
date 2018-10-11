@@ -120,6 +120,7 @@ public class PCLHandler : MonoBehaviour
     public bool updatePCL;
     public bool updateTree;
     public float orientationLineFactor = 1;
+    public float testOffsetRot;
 
     //tmp colorMap
     public Vector3 colorPos;
@@ -674,6 +675,16 @@ public class PCLHandler : MonoBehaviour
         transform.parent.rotation = Quaternion.identity;
         transform.localPosition = -calib3DPoints[0];
 
+        Quaternion xRot = Quaternion.FromToRotation(calib3DPoints[1] - calib3DPoints[0], Vector3.right);
+        transform.parent.localRotation = xRot;
+
+        Vector3 rotatedZCalibPoint = transform.TransformPoint(calib3DPoints[2]) - transform.parent.position;
+        Debug.Log(rotatedZCalibPoint);
+        float zRot = Vector2.Angle(new Vector2(rotatedZCalibPoint.y,rotatedZCalibPoint.z), Vector2.up);
+        Debug.Log("Z rot : "+zRot+", test : "+ (Vector3.right * testOffsetRot));  
+        transform.parent.Rotate(Vector3.right * zRot, Space.World); 
+
+        /*
         Vector3 ba = calib3DPoints[1] - calib3DPoints[0];
         Vector3 ca =  calib3DPoints[2] - calib3DPoints[1];
         Vector3 normXZ = Vector3.Cross(ca, ba);
@@ -683,12 +694,13 @@ public class PCLHandler : MonoBehaviour
         float angle = Vector3.Angle(normXZ, Vector3.up);
         transform.parent.Rotate(calibAxisNorm, angle);
 
+        
         Vector3 xRel = transform.TransformPoint(calib3DPoints[1]);
         xRel.Normalize();
         float yAngle = Vector3.Angle(xRel, Vector3.right);
         Vector3 euler = transform.parent.localRotation.eulerAngles;
         transform.parent.localRotation = Quaternion.Euler(euler.x, euler.y + yAngle, euler.z);
-
+        */
     }
 
     //UI
@@ -750,6 +762,6 @@ public class PCLHandler : MonoBehaviour
         processClusters = !value;
         useCollider = !value;
         updateWorldPoints();
-        updatePCL = !value;
+        //updatePCL = !value; 
     }
 }
